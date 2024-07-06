@@ -5,6 +5,17 @@ import streamlit as st
 import PIL
 import matplotlib.pyplot as plt
 from PIL import Image
+from PIL import ImageColor
+
+url = 'https://sphinx-phoenix.github.io/BarberzBuzz/'
+
+st.markdown(f'''
+<a href={url}><button style="background-color: #EA4C89;border-radius: 8px;border-style: none;box-sizing: border-box;color:#FFFFFF;">Go Back</button></a>''',unsafe_allow_html=True)
+
+
+
+
+
 
 ######Load image##########
 def load_image(image_file):
@@ -13,8 +24,7 @@ def load_image(image_file):
 
 
 
-
-st.write("Hairstyle generator")
+st.title("Hairstyle generator")
 
 model = keras.models.load_model(
     r'checkpoints/hairnet_matting_30.hdf5')   # Load saved model
@@ -62,7 +72,7 @@ def Change_hair_color(image, color):
 
     thresh = 0.60  # Threshold used on mask pixels
 
-    """Create 3 copies of the mask, one for each color channel"""
+
     blue_mask = mask.copy()
     blue_mask[mask > thresh] = color[0]
     blue_mask[mask <= thresh] = 0
@@ -79,7 +89,7 @@ def Change_hair_color(image, color):
     green_mask = cv2.resize(green_mask, (image.shape[1], image.shape[0]))
     red_mask = cv2.resize(red_mask, (image.shape[1], image.shape[0]))
 
-    """Create an rgb mask to superimpose on the image"""
+
     mask_n = np.zeros_like(image)
     mask_n[:, :, 0] = blue_mask
     mask_n[:, :, 1] = green_mask
@@ -100,25 +110,38 @@ def Change_hair_color(image, color):
 
 # print(img)
 
-color = [124, 100, 250]  # Color to be used on hair
+color= st.color_picker('Pick A Hair Color', '#00f900')
+val=ImageColor.getcolor(color, "RGB")
+
+
+
+
+#color = [124, 100, 250]  # Color to be used on hair
+
 file = st.file_uploader("Please upload an image file", type=["jpg", "png", "jpeg"])
 
-st.write('Loaded image')
+
 if file is not None:
     # Perform your Manupilations (In my Case applying Filters)
     img = load_image(file)
+    st.write("Original Image")
     st.image(img)
     img1= np.array(img)
-    im=Change_hair_color(img1, color)
+    im=Change_hair_color(img1, val)
+    st.write("Image with selected hair color")
+
     st.image(im)
-    st.write("Image Uploaded Successfully")
+
+
+
+
 else:
-    st.write("Make sure you image is in JPG/PNG Format.")
+    st.write("Make sure you image is in JPG/PNG/JPEG Format.")
+
 
 
 
 #out_image=Change_hair_color(file, color)
-
 
 
 
